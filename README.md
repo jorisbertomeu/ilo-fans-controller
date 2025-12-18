@@ -173,22 +173,22 @@ sudo chown www-data:www-data /var/www/html/ilo-fans-controller/presets.json
 
 ---
 
-## API Documentation (WIP)
+## API Documentation
 
 The tool exposes a simple API that can be used to:
 
-* Get the current fan speeds from iLO
+* Get current fan speeds from iLO
 * Set the fan speeds
-
-_There is also a way to manage the presets (get existing and add new ones) but it's not documented yet._<br>
-_If you wish to do that, you can check inside the source code how that works_
+* Get all presets
+* Create a preset 
 
 > The following examples use cURL to show how to use the API, but you can use any other tool you want.
 
-### Get the fan speeds (GET)
+### Fan APIs
 
-To use this API you need to add `?api=fans` at the end of the URL.<br>
-**Example: `http://<server ip>/ilo-fans-controller/index.php?api=fans`**
+To use the following APIs you need to add `?api=fans` at the end of the URL.
+
+#### Get fan speeds (`GET`)
 
 <details>
 <summary>JSON structure (response)</summary>
@@ -207,15 +207,15 @@ To use this API you need to add `?api=fans` at the end of the URL.<br>
 </details>
 
 <details>
-<summary>cURL example:</summary>
+<summary>cURL example</summary>
 
 ```sh
-curl http://<server ip>/ilo-fans-controller/index.php?api=fans
+curl 'http://<server ip>/ilo-fans-controller/index.php?api=fans'
 ```
 
 </details>
 
-### Set the fan speeds (POST)
+#### Set the fan speeds (`POST`)
 
 <details>
 <summary>JSON structure example</summary>
@@ -240,9 +240,96 @@ curl http://<server ip>/ilo-fans-controller/index.php?api=fans
 <summary>cURL example</summary>
 
 ```sh
-curl -X POST http://<server ip>/ilo-fans-controller/index.php -H 'Content-Type: application/json' -d '{"action": "fans", "fans": 50}'
+curl -X POST 'http://<server ip>/ilo-fans-controller/index.php' \
+    -H 'Content-Type: application/json' \
+    -d '{"action": "fans", "fans": 50}'
 ```
 
 This command will set all fans to 50%.<br>
 _I personally use this command to slow down the fans automatically when my server boots._
+</details>
+
+### Preset APIs
+
+To use the following APIs you need to add `?api=preset` at the end of the URL.
+
+#### Get all presets (`GET`)
+
+<details>
+<summary>JSON structure (response)</summary>
+
+```json
+[
+    {
+        "name": "Silent Mode",
+        "speeds": [15]  // Like when setting the speeds, this number applies to all fans.
+    },
+    {
+        "name": "Normal Mode",
+        "speeds": [50]
+    },
+    {
+        "name": "Turbo Mode",
+        "speeds": [100]
+    },
+    {
+        "name": "My Custom Preset",
+        "speeds": [10, 10, 25, 30, 10, 15]  // Here you can see the different speeds for each fan.
+    }
+]
+```
+
+</details>
+
+<details>
+<summary>cURL example</summary>
+
+```sh
+curl 'http://<server ip>/ilo-fans-controller/index.php?api=presets'
+```
+
+</details>
+
+#### Create a preset (`POST`)
+
+<details>
+<summary>JSON structure example</summary>
+
+```json
+{
+    "action": "presets",
+    // WARNING: The API will replace all the saved presets with the new data!
+    // To add a preset you should get all the presets first and then add the new one to the existing array.
+    "presets": [
+        {
+            "name": "Silent Mode",
+            "speeds": [15]
+        },
+        {
+            "name": "Normal Mode",
+            "speeds": [50]
+        },
+        {
+            "name": "Turbo Mode",
+            "speeds": [100]
+        },
+        {
+            "name": "My Custom Preset",
+            "speeds": [10, 10, 25, 30, 10, 15]
+        }
+    ]
+}
+```
+
+</details>
+
+<details>
+<summary>cURL example</summary>
+
+```sh
+curl -X POST 'http://<server ip>/ilo-fans-controller/index.php' \
+    -H 'Content-Type: application/json' \
+    -d '{"action": "presets", "presets": [{"My Custom Preset 1": [50], "My Custom Preset 2": [10, 20, 30, 30, 20, 10]}]}'
+```
+
 </details>
