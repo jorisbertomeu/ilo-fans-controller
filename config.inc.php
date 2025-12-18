@@ -11,4 +11,14 @@ $ILO_HOST = 'your-ilo-address';  // Ex. 192.168.1.69
 $ILO_USERNAME = 'your-ilo-username';  // Ex. Administrator
 $ILO_PASSWORD = 'your-ilo-password';  // Ex. AdministratorPassword1234
 
+/*
+  MISCELLANEOUS SETTINGS
+  --------------
+  These allows you to customize
+  the behavior of the tool.
+*/
+
+// Minimum fan speed percentage, from 0% (DANGEROUS) to 100%
+$MINIMUM_FAN_SPEED = 10;
+
 ?>

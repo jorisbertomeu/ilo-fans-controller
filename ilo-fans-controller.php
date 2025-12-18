@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 				foreach ($data['fans'] as $fan => $speed) {
 					if (array_key_exists($fan, $FANS)) {  // Check if the fan name is valid
 						$fan_index = array_search($fan, array_keys($FANS));
-						if (($speed >= 10 && $speed <= 100) && $speed != $FANS[$fan]) {  // Check if the speed is valid and different from the current fan's speed
+						if (($speed >= $MINIMUM_FAN_SPEED && $speed <= 100) && $speed != $FANS[$fan]) {  // Check if the speed is valid and different from the current fan's speed
 							if (!$connected) {  // Connect to iLO (only once)
 								$ssh_handle = ssh2_connect($ILO_HOST, 22);
 								ssh2_auth_password($ssh_handle, $ILO_USERNAME, $ILO_PASSWORD);
@@ -439,7 +439,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 							<!-- Sorry for this -->
 							<input
 								type="range"
-								min="10"
+								min="<?php echo $MINIMUM_FAN_SPEED; ?>"
 								max="100"
 								class="touch-none w-full flex-1 border appearance-none [&::-webkit-slider-thumb]:transition-colors
 											[&::-webkit-slider-thumb]:duration-75 [&::-webkit-slider-thumb]:appearance-none cursor-pointer [&::-webkit-slider-thumb]:bg-emerald-500
@@ -454,7 +454,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 						</div>
 
 						<div x-data="{ originalSpeed: speed }" class="select-none items-center flex flex-row sm:flex-row">
-							<input type="number" min="10" max="100" required class="w-16 sm:ml-3 max-w-max px-1.5 py-0.5 font-mono text-gray-800" :placeholder="originalSpeed" :disabled="$store.app.isLoading" x-model="speed">
+							<input type="number" min="<?php echo $MINIMUM_FAN_SPEED; ?>" max="100" required class="w-16 sm:ml-3 max-w-max px-1.5 py-0.5 font-mono text-gray-800" :placeholder="originalSpeed" :disabled="$store.app.isLoading" x-model="speed">
 
 							<button
 								class="outline-button mx-3 sm:mr-0 px-1 text-sm"
@@ -545,7 +545,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 					setSpeed(fan, rawSpeed) {
 						const speed = parseInt(rawSpeed);
 
-						if (speed >= 10 && speed <= 100)
+						if (speed >= <?php echo $MINIMUM_FAN_SPEED; ?> && speed <= 100)
 							if (Alpine.store('app').editAll)
 								for (const fan in this.fans)
 									this.fans[fan] = speed;
