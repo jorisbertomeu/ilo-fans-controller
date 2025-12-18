@@ -148,73 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 		<!-- Tailwind CSS -->
-		<script src="https://cdn.tailwindcss.com"></script>
-		<script>
-			tailwind.config = {
-				darkMode: 'class',
-				theme: {
-					extend: {
-						colors: {
-							gray: {
-								975: '#0A0A0A',
-								950: '#0F0F10',
-								925: '#141415',
-								900: '#19191A',
-
-								875: '#232324',
-								850: '#28282A',
-								825: '#2D2D2F',
-								800: '#323234',
-
-								775: '#3C3C3E',
-								750: '#414144',
-								725: '#464649',
-								700: '#4B4B4E',
-
-								675: '#555558',
-								650: '#5A5A5E',
-								625: '#5F5F63',
-								600: '#646468',
-
-								575: '#69696D',
-								550: '#737378',
-								525: '#78787D',
-								500: '#7D7D82',
-
-								475: '#87878C',
-								450: '#8D8D91',
-								425: '#929296',
-								400: '#97979B',
-
-								375: '#A1A1A5',
-								350: '#A7A7AA',
-								325: '#ACACAF',
-								300: '#B1B1B4',
-
-								275: '#BBBBBE',
-								250: '#C1C1C3',
-								225: '#C6C6C8',
-								200: '#CBCBCD',
-
-								175: '#D5D5D7',
-								150: '#E0E0E1',
-								125: '#E0E0E1',
-								100: '#E5E5E6',
-
-								75: '#EFEFF0',
-								50: '#F5F5F5',
-								25: '#FAFAFA'
-							}
-						}
-					},
-					fontFamily: {
-						'sans': ['DM Sans', 'sans-serif'],
-						'mono': ['JetBrains Mono', 'monospace']
-					}
-				}
-			}
-		</script>
-
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 		<style type="text/tailwindcss">
 			/* https://alpinejs.dev/directives/cloak */
 			[x-cloak] {
@@ -226,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 			}
 
 			.outline-button {
-				@apply outline-none select-none transition duration-75 rounded-md border border-emerald-500 dark:disabled:border-emerald-500/20
+				@apply outline-none select-none cursor-pointer disabled:cursor-not-allowed transition duration-75 rounded-md border border-emerald-500 dark:disabled:border-emerald-500/20
 							 enabled:hover:border-emerald-600 enabled:dark:hover:border-emerald-400 text-emerald-500 enabled:hover:text-emerald-600
 							 enabled:dark:hover:text-emerald-400 dark:disabled:text-emerald-500/20 disabled:border-emerald-500/40 disabled:text-emerald-500/40;
 			}
@@ -241,6 +175,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 			.tooltip {
 				@apply z-10 py-0.5 px-2 rounded-md select-none absolute max-h-max min-w-max bg-gray-50 border-gray-150 text-gray-800
 							 shadow-md border dark:border-gray-800 dark:bg-gray-850 dark:text-gray-200;
+			}
+			
+			/* https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually */
+			@custom-variant dark (&:where(.dark, .dark *));
+
+			@theme {
+				--font-sans: "DM Sans", sans-serif;
+				--font-mono: "JetBrains Mono", monospace;
+
+				--color-gray-975: #0A0A0A;
+				--color-gray-950: #0F0F10;
+				--color-gray-925: #141415;
+				--color-gray-900: #19191A;
+
+				--color-gray-875: #232324;
+				--color-gray-850: #28282A;
+				--color-gray-825: #2D2D2F;
+				--color-gray-800: #323234;
+
+				--color-gray-775: #3C3C3E;
+				--color-gray-750: #414144;
+				--color-gray-725: #464649;
+				--color-gray-700: #4B4B4E;
+
+				--color-gray-675: #555558;
+				--color-gray-650: #5A5A5E;
+				--color-gray-625: #5F5F63;
+				--color-gray-600: #646468;
+
+				--color-gray-575: #69696D;
+				--color-gray-550: #737378;
+				--color-gray-525: #78787D;
+				--color-gray-500: #7D7D82;
+
+				--color-gray-475: #87878C;
+				--color-gray-450: #8D8D91;
+				--color-gray-425: #929296;
+				--color-gray-400: #97979B;
+
+				--color-gray-375: #A1A1A5;
+				--color-gray-350: #A7A7AA;
+				--color-gray-325: #ACACAF;
+				--color-gray-300: #B1B1B4;
+
+				--color-gray-275: #BBBBBE;
+				--color-gray-250: #C1C1C3;
+				--color-gray-225: #C6C6C8;
+				--color-gray-200: #CBCBCD;
+
+				--color-gray-175: #D5D5D7;
+				--color-gray-150: #E0E0E1;
+				--color-gray-125: #E0E0E1;
+				--color-gray-100: #E5E5E6;
+
+				--color-gray-75: #EFEFF0;
+				--color-gray-50: #F5F5F5;
+				--color-gray-25: #FAFAFA;
 			}
 		</style>
 	</head>
@@ -298,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 					<div x-data="{ showTooltip: false }" class="relative" @mouseover.away="showTooltip = false">
 						<!-- Theme Switcher -->
 						<button
-							class="transition-colors duration-75 p-2 sm:p-1.5 dark:shadow-sm leading-none rounded-full dark:bg-gray-900 dark:text-gray-600
+							class="cursor-pointer transition-colors duration-75 p-2 sm:p-1.5 dark:shadow-sm leading-none rounded-full dark:bg-gray-900 dark:text-gray-600
 										 dark:hover:bg-gray-875 dark:hover:text-gray-500 dark:focus:text-gray-500 dark:focus:bg-gray-875 bg-gray-50 text-gray-300
 										 hover:bg-gray-75 hover:text-gray-400 focus:bg-gray-75 focus:text-gray-400"
 							@click="$store.darkMode.cycleMode()"
@@ -385,7 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 						></button>
 					</template>
 					<button
-						class="input flex-1 border-dashed !bg-transparent sm:px-1.5 px-2 py-1.5 sm:py-0.5 sm:max-w-max text-sm dark:text-gray-875
+						class="input cursor-pointer flex-1 border-dashed !bg-transparent sm:px-1.5 px-2 py-1.5 sm:py-0.5 sm:max-w-max text-sm dark:text-gray-875
 									 dark:hover:text-gray-825 dark:focus:text-gray-825 text-gray-175 hover:text-gray-275 focus:text-gray-275"
 						:disabled="$store.app.isLoading"
 						@click="$store.presets.newPreset()"
@@ -412,7 +403,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 					<!-- Switch -->
 					<button
 						id="edit-all"
-						class="input group h-5 w-10 !rounded-full px-0.5 flex items-center"
+						class="input cursor-pointer group h-5 w-10 !rounded-full px-0.5 flex items-center"
 						:class="$store.app.editAll ? 'dark:!border-gray-825 !border-gray-275' : ''"
 						:disabled="$store.app.isLoading"
 						@click="$store.app.editAll = !$store.app.editAll"
@@ -473,7 +464,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 				<button
 					type="button"
 					class="!outline-none transition-all duration-75 sm:h-10 h-11 sm:w-[15rem] items-center w-full flex justify-center bg-emerald-500 hover:bg-emerald-500/90
-								active:bg-emerald-500/80 px-2 py-1.5 rounded-md text-white font-medium select-none disabled:cursor-progress disabled:!bg-emerald-500/60 disabled:text-opacity-60"
+								active:bg-emerald-500/80 px-2 py-1.5 rounded-md text-white font-medium select-none cursor-pointer disabled:cursor-progress disabled:!bg-emerald-500/60 disabled:text-opacity-60"
 					@click="$store.app.applySpeeds()"
 					:disabled="$store.app.isLoading"
 				>
