@@ -47,8 +47,6 @@ function get_fans() {
 	// echo curl_error($curl_handle);
 	// echo curl_errno($curl_handle);
 
-	curl_close($curl_handle);
-
 	if ($raw_ilo_data) {  // If the request was successful
 		$fans = [];
 		foreach (json_decode($raw_ilo_data, true)['Fans'] as $fan)
