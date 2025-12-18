@@ -17,7 +17,7 @@
 
 ### How does it work? 🛠
 
-This tool is a **single PHP script** that uses the `php-curl` extension to **get the current server fan speeds from the iLO REST api** and the `php-ssh2` extension to **set the fan speeds using the [patched iLO SSH interface](#can-i-use-this-tool-with-my-hp-server-%EF%B8%8F).** You can also **create custom presets** to set a specific fan configuration with a single click, all with a **simple and clean web interface** made using [Alpine.js](https://alpinejs.dev/) and [TailwindCSS](https://tailwindcss.com/).
+This tool is a **single PHP script** that uses the `php-curl` extension to **get the current server fan speeds from the iLO REST api** and the `php-ssh2` extension to **set the fan speeds using the [patched iLO SSH interface](#can-i-use-this-tool-with-my-hp-server-%EF%B8%8F).** You can also **create custom presets** to set a specific fan configuration with a single click, all with a **simple and clean web interface** made by using [Alpine.js](https://alpinejs.dev/) and [TailwindCSS](https://tailwindcss.com/).
 
 ### Can I use this tool with my HP server? 🖥️
 
@@ -25,33 +25,24 @@ This tool requires a **patched iLO firmware** that expose to the iLO SSH interfa
 
 As of now, the patch (and so this tool) only works for **Gen8 & Gen9 servers with iLO 4.**
 
-> Gen10 servers with iLO 5 are not supported at the moment.
+> 🚫 Gen10/11/12 servers with iLO 5/6/7 are not supported (and probably never will).
 
-### I prefer the _original version™_, can I still use it?
-
-Sure, although I spent a lot of time rewriting the tool from scratch so I would recommend using this version instead.
-
-Anyway, you can download the _original version™_ from the [GitHub releases](https://github.com/alex3025/ilo-fans-controller/releases/tag/0.0.1) page.
-
-### Why PHP? And why a single file? 📄
+### Why PHP? 📄
 
 **Answer #1:**
-In my opinion, PHP is perfect for this type of tasks where you need to do some server-side things and something easy to deploy (you just need a web server with PHP installed).
-
-**Answer #2:**
-I wanted to make this tool as easy as possible to install and use, so I decided to put everything in a single file.
+In my opinion, PHP is perfect for this type of tasks where you need to do some simple server-side stuff and something easy to deploy (you just need a web server with PHP installed).
 
 ### Why did you make this? 🤔
 
 See my [original comment on r/homelab](https://www.reddit.com/r/homelab/comments/rcel73/comment/hnu3iyp/?utm_source=share&utm_medium=web2x&context=3) to know the story behind this tool!
 
-### How can I offer you a coffee? ☕
+### Do you like this project? Offer me a slice of pizza! 🍕
 
-If you found this tool useful, consider offering me a coffee using [PayPal](https://paypal.me/alex3025) or via [GitHub Sponsors](hhttps://github.com/sponsors/alex3025) to support my work! Thank you so much! 🙏
+If you found this tool useful, consider offering me a slice of (or entire) pizza using [PayPal](https://paypal.me/alex3025) or [GitHub Sponsors](https://github.com/sponsors/alex3025) to support my work! Thank you so much! 🙏
 
 ---
 
-## Use with Docker / Docker Compose
+## Getting started with Docker / Docker Compose
 
 If you already have a Docker environment, you can be up and running in minutes using the following command (obviously you need to change the value):
 
@@ -66,6 +57,8 @@ docker run -d --name ilo-fans-controller --restart always \
 
 Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](https://github.com/alex3025/ilo-fans-controller/blob/main/docker-compose.yaml) file is provided as well.
 
+**Check [`config.inc.php`](https://github.com/alex3025/ilo-fans-controller/blob/main/config.inc.php) for all the available environment variables!**
+
 ---
 
 > ⚠ **IMPORTANT!** ⚠
@@ -78,7 +71,7 @@ Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](htt
 
 ### The following guide was run on
 
-* An **HP DL380e G8** server
+* An **HP ProLiant DL380e Gen8** server
 * **Patched iLO 4** Advanced **v2.77** (07 December 2020)
 * A Proxmox container (LXC) running **Ubuntu 22.04**
 * **Apache 2** & **PHP 8.1**
@@ -91,10 +84,10 @@ Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](htt
     sudo apt-get update && sudo apt-get upgrade
     ```
 
-2. Install the required packages (`apache2`, `php8.1`, `php8.1-curl` and `php8.1-ssh2`):
+2. Install the required packages (`apache2`, `php`, `php-curl` and `php-ssh2`):
 
     ```sh
-    sudo apt-get install apache2 php8.1 php8.1-curl php8.1-ssh2
+    sudo apt-get install apache2 php php-curl php-ssh2
     ```
 
 ### Downloading the tool
@@ -102,13 +95,13 @@ Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](htt
 1. Download and extract the latest source code using `wget` and `tar`:
 
     ```sh
-    wget -qL https://github.com/alex3025/ilo-fans-controller/archive/refs/tags/1.0.0.tar.gz -O - | tar -xz
+    wget -qL https://github.com/alex3025/ilo-fans-controller/archive/refs/heads/main.tar.gz -O - | tar -xz
     ```
 
 2. Enter the directory:
 
     ```sh
-    cd ilo-fans-controller-1.0.0
+    cd ilo-fans-controller-main
     ```
 
 ### Configuring and installing the tool
@@ -122,8 +115,6 @@ Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](htt
     Here is an example:
 
     ```php
-    <?php
-
     /*
     ILO ACCESS CREDENTIALS
     --------------
@@ -134,8 +125,6 @@ Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](htt
     $ILO_HOST = '192.168.1.69';
     $ILO_USERNAME = 'Administrator';
     $ILO_PASSWORD = 'AdministratorPassword1234';
-
-    ?>
     ```
 
 2. When you're done, create a new subdirectory in your web server root directory (usually `/var/www/html/`) and copy the `config.inc.php`, `ilo-fans-controller.php` and `favicon.ico` to it:
