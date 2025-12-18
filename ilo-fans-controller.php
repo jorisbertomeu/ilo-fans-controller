@@ -59,13 +59,19 @@ function get_fans() {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	$FANS = get_fans();
 
-	if (isset($_GET['api']) && $_GET['api'] == 'fans')  // Return fans in JSON format with ?api=fans
-		die(json_encode($FANS, JSON_PRETTY_PRINT));
+	// Return fans in JSON format with ?api=fans
+	if (isset($_GET['api']) && $_GET['api'] == 'fans') {
+		header('Content-Type: application/json');
+		die(json_encode($FANS));
+	}
 
 	$PRESETS = get_presets();
 
-	if (isset($_GET['api']) && $_GET['api'] == 'presets')  // Return presets in JSON format with ?api=presets
-		die(json_encode($PRESETS, JSON_PRETTY_PRINT));
+	// Return presets in JSON format with ?api=presets
+	if (isset($_GET['api']) && $_GET['api'] == 'presets') {
+		header('Content-Type: application/json');
+		die(json_encode($PRESETS));
+	}
 
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	// Get POST JSON data from JS fetch()
