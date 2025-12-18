@@ -29,7 +29,6 @@ As of now, the patch (and so this tool) only works for **Gen8 & Gen9 servers wit
 
 ### Why PHP? 📄
 
-**Answer #1:**
 In my opinion, PHP is perfect for this type of tasks where you need to do some simple server-side stuff and something easy to deploy (you just need a web server with PHP installed).
 
 ### Why did you make this? 🤔
@@ -193,7 +192,7 @@ To use the following APIs you need to add `?api=fans` at the end of the URL.
 <details>
 <summary>JSON structure (response)</summary>
 
-```json
+```jsonc
 {
     "Fan 1": 85,
     "Fan 2": 48,
@@ -220,7 +219,7 @@ curl 'http://<server ip>/ilo-fans-controller/index.php?api=fans'
 <details>
 <summary>JSON structure example</summary>
 
-```json
+```jsonc
 {
     "action": "fans",
     // You can use either an object or a single number value (that will be applied to all fans):
@@ -258,7 +257,7 @@ To use the following APIs you need to add `?api=preset` at the end of the URL.
 <details>
 <summary>JSON structure (response)</summary>
 
-```json
+```jsonc
 [
     {
         "name": "Silent Mode",
@@ -295,7 +294,7 @@ curl 'http://<server ip>/ilo-fans-controller/index.php?api=presets'
 <details>
 <summary>JSON structure example</summary>
 
-```json
+```jsonc
 {
     "action": "presets",
     // WARNING: The API will replace all the saved presets with the new data!
