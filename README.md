@@ -3,332 +3,207 @@
 <p align="center">
   <img width="800" src="screenshot.png" alt="Webpage Screenshot">
   <br>
-  <i>Easily manage your HP's server fans speeds, anywhere!</i>
+  <i>Easily manage your HP's server fans speeds with automatic temperature-based control!</i>
 </p>
 
 ---
 
-<h3 align="center"> 🎉 Thank you so much for the <code>1.000+</code> container pulls! 🎉 </h3>
+> 🍴 **This is a fork** of [alex3025/ilo-fans-controller](https://github.com/alex3025/ilo-fans-controller) with significant enhancements for automatic fan control and temperature monitoring.
 
-> ℹ **NOTE:** The v1.0.0 is a **complete rewrite** of the tool, so any feedback is appreciated!<br>
-> If you find any bug or have any suggestion, please [open an issue](https://github.com/alex3025/ilo-fans-controller/issues). Thanks! 😄
+## ✨ What's New in This Fork
 
-## FAQ
+### 🌡️ Temperature Monitoring
+- **Real-time temperature display** organized by zones (CPU, Memory, Storage, VR, Chipset, iLO, PCI, Ambient)
+- **Auto-refresh** with configurable intervals (5s, 10s, 30s, 60s)
+- **Color-coded progress bars** showing temperature relative to critical thresholds
+- **Collapsible zone cards** with detailed sensor view
 
-### How does it work? 🛠
+### 🤖 Automatic Fan Control
+- **Background daemon** (`fan-daemon.php`) that adjusts fan speeds based on temperatures
+- **Three built-in profiles**: Silence, Normal, Turbo
+- **Manual/Auto toggle** in the web interface
+- **Hysteresis** to prevent fan oscillation (only changes speed if diff > 3%)
+- **Ambient temperature safety**: Forces Normal profile if inlet temp > 35°C
+- **Persistent configuration** via `auto-control.json`
 
-This tool is a **single PHP script** that uses the `php-curl` extension to **get the current server fan speeds from the iLO REST api** and the `php-ssh2` extension to **set the fan speeds using the [patched iLO SSH interface](#can-i-use-this-tool-with-my-hp-server-%EF%B8%8F).** You can also **create custom presets** to set a specific fan configuration with a single click, all with a **simple and clean web interface** made by using [Alpine.js](https://alpinejs.dev/) and [TailwindCSS](https://tailwindcss.com/).
+### 🐳 Enhanced Docker Support
+- **Supervisord** manages both Apache and the daemon in a single container
+- **Environment variables** for all configuration
+- **Health checks** built-in
+- **Swarm-ready** docker-compose.yml
 
-### Can I use this tool with my HP server? 🖥️
-
-This tool requires a **patched iLO firmware** that expose to the iLO SSH interface some commands to manipulate the fans speeds. You can find more information about this patch on [this Reddit post](https://www.reddit.com/r/homelab/comments/sx3ldo/hp_ilo4_v277_unlocked_access_to_fan_controls/).
-
-As of now, the patch (and so this tool) only works for **Gen8 & Gen9 servers with iLO 4.**
-
-> 🚫 Gen10/11/12 servers with iLO 5/6/7 are not supported (and probably never will).
-
-### Why PHP? 📄
-
-In my opinion, PHP is perfect for this type of tasks where you need to do some simple server-side stuff and something easy to deploy (you just need a web server with PHP installed).
-
-### Why did you make this? 🤔
-
-See my [original comment on r/homelab](https://www.reddit.com/r/homelab/comments/rcel73/comment/hnu3iyp/?utm_source=share&utm_medium=web2x&context=3) to know the story behind this tool!
-
-### Do you like this project? Offer me a slice of pizza! 🍕
-
-If you found this tool useful, consider offering me a slice of (or entire) pizza using [PayPal](https://paypal.me/alex3025) or [GitHub Sponsors](https://github.com/sponsors/alex3025) to support my work! Thank you so much! 🙏
+### ⚡ Performance Optimizations
+- **Combined SSH commands** for faster fan speed application
+- **Timeout handling** to prevent blocking
+- **Fan count detection** from iLO API
 
 ---
 
-## Getting started with Docker / Docker Compose
+## 🚀 Quick Start with Docker
 
-If you already have a Docker environment, you can be up and running in minutes using the following command (obviously you need to change the value):
-
-```sh
+### Docker Run
+```bash
 docker run -d --name ilo-fans-controller --restart always \
-    -p 8000:80 \
-    -e ILO_HOST='your-ilo-address' \
-    -e ILO_USERNAME='your-ilo-username' \
-    -e ILO_PASSWORD='your-ilo-password' \
-    ghcr.io/alex3025/ilo-fans-controller:latest
+    -p 8080:80 \
+    -e ILO_HOST='your-ilo-ip' \
+    -e ILO_USERNAME='Administrator' \
+    -e ILO_PASSWORD='your-password' \
+    -e AUTO_DAEMON='true' \
+    harbor.ics.fr/ics/ilo-fans-controller:latest
 ```
 
-Or if you prefer, you can use `docker compose`, as the [docker-compose.yaml](https://github.com/alex3025/ilo-fans-controller/blob/main/docker-compose.yaml) file is provided as well.
+### Docker Compose
+```yaml
+version: "3.8"
 
-**Check [`config.inc.php`](https://github.com/alex3025/ilo-fans-controller/blob/main/config.inc.php) for all the available environment variables!**
+services:
+  ilo-fans-controller:
+    image: harbor.ics.fr/ics/ilo-fans-controller:latest
+    ports:
+      - "8080:80"
+    environment:
+      ILO_HOST: 'your-ilo-ip'
+      ILO_USERNAME: 'Administrator'
+      ILO_PASSWORD: 'your-password'
+      MINIMUM_FAN_SPEED: '10'
+      AUTO_DAEMON: 'true'
+    volumes:
+      - ilo-fans-data:/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  ilo-fans-data:
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ILO_HOST` | IP address of your iLO interface | *required* |
+| `ILO_USERNAME` | iLO username | *required* |
+| `ILO_PASSWORD` | iLO password | *required* |
+| `MINIMUM_FAN_SPEED` | Minimum allowed fan speed (%) | `10` |
+| `AUTO_DAEMON` | Enable background auto-control daemon | `true` |
 
 ---
 
-> ⚠ **IMPORTANT!** ⚠
->
-> Again, this tool works thanks to a **[patched iLO firmware](#can-i-use-this-tool-with-my-hp-server-%EF%B8%8F)** that expose to the iLO SSH interface some commands to manipulate the fans speeds.
->
-> **This patch is required to use this tool!**
+## 🎛️ Auto-Control Profiles
 
-## Manual installation
+The daemon uses profiles to determine fan speeds based on CPU temperatures:
 
-### The following guide was run on
+| Profile | Fan Speed Range | Target Temp | Max Temp |
+|---------|-----------------|-------------|----------|
+| **Silence** | 10% - 40% | 55°C | 70°C |
+| **Normal** | 20% - 70% | 50°C | 65°C |
+| **Turbo** | 40% - 100% | 40°C | 55°C |
 
-* An **HP ProLiant DL380e Gen8** server
-* **Patched iLO 4** Advanced **v2.77** (07 December 2020)
-* A Proxmox container (LXC) running **Ubuntu 22.04**
-* **Apache 2** & **PHP 8.1**
+### How It Works
 
-### Preparing the environment
+1. The daemon reads CPU temperatures every 20-30 seconds
+2. Calculates optimal fan speed using linear interpolation:
+   - Below target temp → minimum speed
+   - Above max temp → maximum speed
+   - Between → proportional speed
+3. Applies hysteresis: only changes if new speed differs by > 3%
+4. Safety: Forces Normal profile if ambient temp > 35°C
 
-1. Update the system:
+### Configuration File (`auto-control.json`)
 
-    ```sh
-    sudo apt-get update && sudo apt-get upgrade
-    ```
-
-2. Install the required packages (`apache2`, `php`, `php-curl` and `php-ssh2`):
-
-    ```sh
-    sudo apt-get install apache2 php php-curl php-ssh2
-    ```
-
-### Downloading the tool
-
-1. Download and extract the latest source code using `wget` and `tar`:
-
-    ```sh
-    wget -qL https://github.com/alex3025/ilo-fans-controller/archive/refs/heads/main.tar.gz -O - | tar -xz
-    ```
-
-2. Enter the directory:
-
-    ```sh
-    cd ilo-fans-controller-main
-    ```
-
-### Configuring and installing the tool
-
-1. Open the `config.inc.php` file you favourite text editor and change the variables according to your configuration.
-
-    > ℹ **NOTE:** Remember that `$ILO_HOST` is the IP address of your iLO interface, not of the server itself.
-
-    > ℹ **NOTE:** It's recommended to create a new iLO user with the minimum privileges required to access the SSH interface and the REST api (Remote Console Access).
-
-    Here is an example:
-
-    ```php
-    /*
-    ILO ACCESS CREDENTIALS
-    --------------
-    These are used to connect to the iLO
-    interface and manage the fan speeds.
-    */
-
-    $ILO_HOST = '192.168.1.69';
-    $ILO_USERNAME = 'Administrator';
-    $ILO_PASSWORD = 'AdministratorPassword1234';
-    ```
-
-2. When you're done, create a new subdirectory in your web server root directory (usually `/var/www/html/`) and copy the `config.inc.php`, `ilo-fans-controller.php` and `favicon.ico` to it:
-
-    ```sh
-    sudo mkdir /var/www/html/ilo-fans-controller
-    sudo cp config.inc.php ilo-fans-controller.php favicon.ico /var/www/html/ilo-fans-controller/
-    ```
-
-    Then rename `ilo-fans-controller.php` to `index.php` (to make it work without specifying the filename in the URL):
-
-    ```sh
-    sudo mv /var/www/html/ilo-fans-controller/ilo-fans-controller.php /var/www/html/ilo-fans-controller/index.php
-    ```
-
-3. That's it! Now you can reach the tool at `http://<your-server-ip>/ilo-fans-controller/` (or `http://<your-server-ip>/ilo-fans-controller/index.php` for API requests).
-
-> ℹ **NOTE:** If the web server where you installed this tool **will be reachable from outside your network**, remember to **setup some sort of authentication** (like Basic Auth) to prevent _unauthorized fan management at 2AM_.
-
----
-
-## Troubleshooting
-
-The first thing to do when you encounter a problem is to **check the logs**.
-
-> If you are using Apache, PHP errors are logged in the `/var/log/apache2/error.log` file.
-
-If you think you found a bug, please [open an issue](https://github.com/alex3025/ilo-fans-controller/issues) and I'll take a look.
-
-Below you can find some common problems and their solutions.
-
-### The presets are not saved
-
-If you see the following error in the logs when you create a new preset:
-
-```log
-PHP Warning:  file_put_contents(presets.json): Failed to open stream: Permission denied in .../index.php on line X
-```
-
-This is probably because the `presets.json` file is not writable by the web server user.<br>
-To fix this, run the following command to change the file owner to `www-data` (the default Apache user):
-
-```sh
-sudo chown www-data:www-data /var/www/html/ilo-fans-controller/presets.json
-```
-
----
-
-## API Documentation
-
-The tool exposes a simple API that can be used to:
-
-* Get current fan speeds from iLO
-* Set the fan speeds
-* Get all presets
-* Create a preset 
-
-> The following examples use cURL to show how to use the API, but you can use any other tool you want.
-
-### Fan APIs
-
-To use the following APIs you need to add `?api=fans` at the end of the URL.
-
-#### Get fan speeds (`GET`)
-
-<details>
-<summary>JSON structure (response)</summary>
-
-```jsonc
+```json
 {
-    "Fan 1": 85,
-    "Fan 2": 48,
-    "Fan 3": 69,
-    "Fan 4": 18,
-    "Fan 5": 44,
-    "Fan 6": 96
-}
-```
-
-</details>
-
-<details>
-<summary>cURL example</summary>
-
-```sh
-curl 'http://<server ip>/ilo-fans-controller/index.php?api=fans'
-```
-
-</details>
-
-#### Set the fan speeds (`POST`)
-
-<details>
-<summary>JSON structure example</summary>
-
-```jsonc
-{
-    "action": "fans",
-    // You can use either an object or a single number value (that will be applied to all fans):
-    // Example: `fans: { ... }` or `fans: 50`
-    "fans": {
-        "Fan 1": 40,
-        "Fan 2": 23,
-        "Fan 5": 70
-        // ...
+  "enabled": true,
+  "profile": "silence",
+  "profiles": {
+    "silence": {
+      "label": "Silence",
+      "minSpeed": 10,
+      "maxSpeed": 40,
+      "targetTemp": 55,
+      "maxTemp": 70
     }
+  },
+  "checkInterval": 20
 }
 ```
 
-</details>
+---
 
-<details>
-<summary>cURL example</summary>
+## 🔧 Manual Installation
 
-```sh
-curl -X POST 'http://<server ip>/ilo-fans-controller/index.php' \
-    -H 'Content-Type: application/json' \
-    -d '{"action": "fans", "fans": 50}'
-```
+### Requirements
+- HP server with **patched iLO 4** firmware (Gen8/Gen9)
+- PHP 8.x with `php-curl`, `php-ssh2`, `php-pcntl`, `php-posix`
+- Apache or Nginx web server
 
-This command will set all fans to 50%.<br>
-_I personally use this command to slow down the fans automatically when my server boots._
-</details>
+### Installation Steps
 
-### Preset APIs
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/jorisbertomeu/ilo-fans-controller.git
+   cd ilo-fans-controller
+   ```
 
-To use the following APIs you need to add `?api=preset` at the end of the URL.
+2. Create your config file:
+   ```bash
+   cp config.inc.php.example config.inc.php
+   nano config.inc.php
+   ```
 
-#### Get all presets (`GET`)
+3. Copy files to web server:
+   ```bash
+   sudo cp ilo-fans-controller.php /var/www/html/index.php
+   sudo cp fan-daemon.php auto-control.json config.inc.php favicon.ico /var/www/html/
+   ```
 
-<details>
-<summary>JSON structure (response)</summary>
+4. Start the daemon (optional, for auto-control):
+   ```bash
+   nohup php /var/www/html/fan-daemon.php > /dev/null 2>&1 &
+   ```
 
-```jsonc
-[
-    {
-        "name": "Silent Mode",
-        "speeds": [15]  // Like when setting the speeds, this number applies to all fans.
-    },
-    {
-        "name": "Normal Mode",
-        "speeds": [50]
-    },
-    {
-        "name": "Turbo Mode",
-        "speeds": [100]
-    },
-    {
-        "name": "My Custom Preset",
-        "speeds": [10, 10, 25, 30, 10, 15]  // Here you can see the different speeds for each fan.
-    }
-]
-```
+---
 
-</details>
+## 📡 API Reference
 
-<details>
-<summary>cURL example</summary>
+### GET Endpoints
 
-```sh
-curl 'http://<server ip>/ilo-fans-controller/index.php?api=presets'
-```
+| Endpoint | Description |
+|----------|-------------|
+| `?api=fans` | Get current fan speeds |
+| `?api=temperatures` | Get temperature readings (grouped by zone) |
+| `?api=presets` | Get saved presets |
+| `?api=autocontrol` | Get auto-control configuration |
 
-</details>
+### POST Actions
 
-#### Create a preset (`POST`)
+| Action | Payload | Description |
+|--------|---------|-------------|
+| `fans` | `{ "action": "fans", "fans": 50 }` | Set all fans to 50% |
+| `presets` | `{ "action": "presets", "presets": [...] }` | Save presets |
+| `autocontrol` | `{ "action": "autocontrol", "config": {...} }` | Update auto-control config |
 
-<details>
-<summary>JSON structure example</summary>
+---
 
-```jsonc
-{
-    "action": "presets",
-    // WARNING: The API will replace all the saved presets with the new data!
-    // To add a preset you should get all the presets first and then add the new one to the existing array.
-    "presets": [
-        {
-            "name": "Silent Mode",
-            "speeds": [15]
-        },
-        {
-            "name": "Normal Mode",
-            "speeds": [50]
-        },
-        {
-            "name": "Turbo Mode",
-            "speeds": [100]
-        },
-        {
-            "name": "My Custom Preset",
-            "speeds": [10, 10, 25, 30, 10, 15]
-        }
-    ]
-}
-```
+## ⚠️ Requirements
 
-</details>
+This tool requires a **patched iLO firmware** that exposes fan control commands via SSH. 
 
-<details>
-<summary>cURL example</summary>
+- ✅ Supported: **Gen8 & Gen9 servers with iLO 4**
+- 🚫 Not supported: Gen10/11/12 with iLO 5/6/7
 
-```sh
-curl -X POST 'http://<server ip>/ilo-fans-controller/index.php' \
-    -H 'Content-Type: application/json' \
-    -d '{"action": "presets", "presets": [{"My Custom Preset 1": [50], "My Custom Preset 2": [10, 20, 30, 30, 20, 10]}]}'
-```
+More info: [Reddit post about iLO 4 patching](https://www.reddit.com/r/homelab/comments/sx3ldo/hp_ilo4_v277_unlocked_access_to_fan_controls/)
 
-</details>
+---
+
+## 🙏 Credits
+
+- Original project by [alex3025](https://github.com/alex3025/ilo-fans-controller)
+- Fork maintained by [Jobertomeu](https://github.com/jobertomeu)
+
+---
+
+## 📝 License
+
+This project is open source. See the original repository for license information.

@@ -6,3 +6,16 @@ presets.json
 
 # Tailwind Config file (nothing special, used for VSCode Tailwind CSS IntelliSense)
 tailwind.config.js
+
+# Config files with credentials
+config.inc.php
+.env
+
+# Runtime files
+*.pid
+
+# Data directory (persistent)
+data/
+
+# macOS
+.DS_Store
