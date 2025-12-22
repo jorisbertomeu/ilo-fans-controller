@@ -1,0 +1,28 @@
+{
+    "enabled": true,
+    "profile": "silent",
+    "profiles": {
+        "silent": {
+            "label": "Silent",
+            "minSpeed": 10,
+            "maxSpeed": 40,
+            "targetTemp": 55,
+            "maxTemp": 70
+        },
+        "normal": {
+            "label": "Normal",
+            "minSpeed": 20,
+            "maxSpeed": 70,
+            "targetTemp": 50,
+            "maxTemp": 65
+        },
+        "turbo": {
+            "label": "Turbo",
+            "minSpeed": 40,
+            "maxSpeed": 100,
+            "targetTemp": 40,
+            "maxTemp": 55
+        }
+    },
+    "checkInterval": 20
+}
